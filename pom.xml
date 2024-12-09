@@ -21,6 +21,12 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.33</version>
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.swinglabs</groupId>-->
+<!--            <artifactId>swingx</artifactId>-->
+<!--            <version>1.6.1</version>-->
+<!--        </dependency>-->
     </dependencies>
 
 </project>

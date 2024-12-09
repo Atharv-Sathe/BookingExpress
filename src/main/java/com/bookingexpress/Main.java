@@ -1,7 +1,14 @@
 package com.bookingexpress;
 
+import com.bookingexpress.ui.LoginRegistrationFrame;
+import javax.swing.SwingUtilities;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        // Use Swing's Event Dispatch Thread for thread-safe UI initialization
+        SwingUtilities.invokeLater(() -> {
+            // Launch the login/registration frame
+            new LoginRegistrationFrame().setVisible(true);
+        });
     }
 }
