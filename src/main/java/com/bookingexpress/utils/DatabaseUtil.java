@@ -1,4 +1,4 @@
-package com.bookingexpress.dao;
+package com.bookingexpress.utils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

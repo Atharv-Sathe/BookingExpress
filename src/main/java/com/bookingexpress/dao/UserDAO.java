@@ -1,6 +1,8 @@
 package com.bookingexpress.dao;
 
 import com.bookingexpress.models.User;
+import com.bookingexpress.utils.DatabaseUtil;
+
 import java.sql.*;
 
 public class UserDAO {
