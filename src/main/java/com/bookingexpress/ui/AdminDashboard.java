@@ -415,37 +415,6 @@ public class AdminDashboard extends JFrame {
         setLocationRelativeTo(null);
     }
 
-//    private JPanel createManageTrainsPanel() {
-//        JPanel panel = new JPanel(new BorderLayout());
-//
-//        // Train Search Section
-//        JPanel searchPanel = new JPanel(new FlowLayout());
-//        JTextField trainSearchField = new JTextField(20);
-//        JButton searchButton = new JButton("Search Train");
-//        searchPanel.add(new JLabel("Train Number:"));
-//        searchPanel.add(trainSearchField);
-//        searchPanel.add(searchButton);
-//
-//        // Train Details Section
-//        JTextArea trainDetailsArea = new JTextArea(10, 40);
-//        trainDetailsArea.setEditable(false);
-//
-//        // Action Buttons
-//        JPanel actionPanel = new JPanel();
-//        JButton addTrainButton = new JButton("Add Train");
-//        JButton editTrainButton = new JButton("Edit Train");
-//        JButton removeTrainButton = new JButton("Remove Train");
-//        actionPanel.add(addTrainButton);
-//        actionPanel.add(editTrainButton);
-//        actionPanel.add(removeTrainButton);
-//
-//        panel.add(searchPanel, BorderLayout.NORTH);
-//        panel.add(new JScrollPane(trainDetailsArea), BorderLayout.CENTER);
-//        panel.add(actionPanel, BorderLayout.SOUTH);
-//
-//        return panel;
-//    }
-
     private void logout() {
         // Return to login screen
         new LoginRegistrationFrame().setVisible(true);
