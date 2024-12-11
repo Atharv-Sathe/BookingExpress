@@ -14,12 +14,18 @@ public class TicketDAO {
 
     // Book a new ticket
     public boolean bookTicket(Ticket ticket) {
-        String query = "INSERT INTO Tickets (pnr, username, trainNo, ticket_status) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO Tickets (pnr, username, trainNo, ticket_status, userMobile, passenger1, passenger2, passenger3, passenger4) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setString(1, ticket.getPnr());
             pstmt.setString(2, ticket.getUsername());
             pstmt.setString(3, ticket.getTrainNo());
             pstmt.setString(4, ticket.getTicketStatus());
+            pstmt.setString(5, ticket.getUserMobile());
+            pstmt.setString(6, ticket.getPassenger1());
+            pstmt.setString(7, ticket.getPassenger2());
+            pstmt.setString(8, ticket.getPassenger3());
+            pstmt.setString(9, ticket.getPassenger4());
+
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -41,6 +47,11 @@ public class TicketDAO {
                     ticket.setUsername(rs.getString("username"));
                     ticket.setTrainNo(rs.getString("trainNo"));
                     ticket.setTicketStatus(rs.getString("ticket_status"));
+                    ticket.setUserMobile(rs.getString("userMobile"));
+                    ticket.setPassenger1(rs.getString("passenger1"));
+                    ticket.setPassenger2(rs.getString("passenger2"));
+                    ticket.setPassenger3(rs.getString("passenger3"));
+                    ticket.setPassenger4(rs.getString("passenger4"));
                     return ticket;
                 }
             }
@@ -64,6 +75,11 @@ public class TicketDAO {
                     ticket.setUsername(rs.getString("username"));
                     ticket.setTrainNo(rs.getString("trainNo"));
                     ticket.setTicketStatus(rs.getString("ticket_status"));
+                    ticket.setUserMobile(rs.getString("userMobile"));
+                    ticket.setPassenger1(rs.getString("passenger1"));
+                    ticket.setPassenger2(rs.getString("passenger2"));
+                    ticket.setPassenger3(rs.getString("passenger3"));
+                    ticket.setPassenger4(rs.getString("passenger4"));
                     tickets.add(ticket);
                 }
             }

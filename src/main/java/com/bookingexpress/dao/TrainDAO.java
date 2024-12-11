@@ -14,7 +14,7 @@ public class TrainDAO {
 
     // Add a new train
     public boolean addTrain(Train train) {
-        String query = "INSERT INTO Trains (trainNo, bogeys, max_capacity, available_seats, route, train_status) VALUES (?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO Trains (trainNo, bogeys, max_capacity, available_seats, route, train_status, costPerSeat) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setString(1, train.getTrainNo());
             pstmt.setInt(2, train.getBogeys());
@@ -22,6 +22,7 @@ public class TrainDAO {
             pstmt.setInt(4, train.getAvailableSeats());
             pstmt.setString(5, train.getRoute());
             pstmt.setString(6, train.getTrainStatus());
+            pstmt.setInt(7, train.getCostPerSeat());
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -45,6 +46,7 @@ public class TrainDAO {
                     train.setAvailableSeats(rs.getInt("available_seats"));
                     train.setRoute(rs.getString("route"));
                     train.setTrainStatus(rs.getString("train_status"));
+                    train.setCostPerSeat((rs.getInt("costPerSeat")));
                     return train;
                 }
             }
@@ -56,14 +58,17 @@ public class TrainDAO {
 
     // Update train details
     public boolean updateTrain(Train train) {
-        String query = "UPDATE Trains SET bogeys = ?, max_capacity = ?, available_seats = ?, route = ?, train_status = ? WHERE trainNo = ?";
+        String query = "UPDATE Trains SET bogeys = ?, max_capacity = ?, available_seats = ?, route = ?, train_status = ?, costPerSeat = ? WHERE trainNo = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, train.getBogeys());
             pstmt.setInt(2, train.getMaxCapacity());
             pstmt.setInt(3, train.getAvailableSeats());
             pstmt.setString(4, train.getRoute());
             pstmt.setString(5, train.getTrainStatus());
-            pstmt.setString(6, train.getTrainNo());
+            pstmt.setInt(6, train.getCostPerSeat());
+            pstmt.setString(7, train.getTrainNo());
+
+            System.out.println("Update Train Invoked, returning: " + (pstmt.executeUpdate() > 0));
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -100,6 +105,7 @@ public class TrainDAO {
                 train.setAvailableSeats(rs.getInt("available_seats"));
                 train.setRoute(rs.getString("route"));
                 train.setTrainStatus(rs.getString("train_status"));
+                train.setCostPerSeat(rs.getInt("costPerSeat"));
                 trains.add(train);
             }
         } catch (SQLException e) {

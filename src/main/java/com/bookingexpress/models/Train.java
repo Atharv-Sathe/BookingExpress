@@ -8,13 +8,14 @@ public class Train {
     private int availableSeats;
     private String route;
     private String trainStatus;
+    private int costPerSeat;
 
     // Default constructor
     public Train() {}
 
     // Parameterized constructor
     public Train(int id, String trainNo, int bogeys, int maxCapacity,
-                 int availableSeats, String route, String trainStatus) {
+                 int availableSeats, String route, String trainStatus, int costPerSeat) {
         this.id = id;
         this.trainNo = trainNo;
         this.bogeys = bogeys;
@@ -22,6 +23,7 @@ public class Train {
         this.availableSeats = availableSeats;
         this.route = route;
         this.trainStatus = trainStatus;
+        this.costPerSeat = costPerSeat;
     }
 
     // Getters and Setters
@@ -79,6 +81,14 @@ public class Train {
 
     public void setTrainStatus(String trainStatus) {
         this.trainStatus = trainStatus;
+    }
+
+    public int getCostPerSeat() {
+        return costPerSeat;
+    }
+
+    public void setCostPerSeat(int costPerSeat) {
+        this.costPerSeat = costPerSeat;
     }
 
     @Override

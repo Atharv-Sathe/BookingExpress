@@ -10,13 +10,10 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.Connection;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.stream.Collectors;
 import org.jdesktop.swingx.JXDatePicker;
-import java.text.SimpleDateFormat;
 import java.util.stream.Stream;
 
 public class UserDashboard extends JFrame {
@@ -28,6 +25,8 @@ public class UserDashboard extends JFrame {
     private JButton searchButton;
     private JButton bookTicketButton;
     private JXDatePicker datePicker;
+    private JPanel bookTicketsPanel;
+    private CardLayout bookTicketsCardLayout;
 
     public UserDashboard(User user) {
         this.currentUser = user;
@@ -71,10 +70,15 @@ public class UserDashboard extends JFrame {
     }
 
     private JPanel createBookTicketsPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
+//        JPanel panel = new JPanel(new BorderLayout());
+        bookTicketsCardLayout = new CardLayout();
+        bookTicketsPanel = new JPanel(bookTicketsCardLayout);
 
         // Train Search Section
-        JPanel searchPanel = new JPanel(new FlowLayout());
+//        JPanel searchPanel = new JPanel(new FlowLayout());
+        JPanel searchPanel = new JPanel(new BorderLayout());
+
+        JPanel searchInputPanel = new JPanel(new FlowLayout());
 
         // Populate city dropdowns from RouteManager
         String[] cities = RouteManager.getAllRoutes().values().stream()
@@ -85,17 +89,17 @@ public class UserDashboard extends JFrame {
         fromCityComboBox = new JComboBox<>(cities);
         toCityComboBox = new JComboBox<>(cities);
 
-        searchPanel.add(new JLabel("From:"));
-        searchPanel.add(fromCityComboBox);
-        searchPanel.add(new JLabel("To:"));
-        searchPanel.add(toCityComboBox);
+        searchInputPanel.add(new JLabel("From:"));
+        searchInputPanel.add(fromCityComboBox);
+        searchInputPanel.add(new JLabel("To:"));
+        searchInputPanel.add(toCityComboBox);
 
         datePicker = new JXDatePicker();
-        searchPanel.add(datePicker);
+        searchInputPanel.add(datePicker);
 
         searchButton = new JButton("Search Trains");
         searchButton.addActionListener(e -> searchTrains());
-        searchPanel.add(searchButton);
+        searchInputPanel.add(searchButton);
 
         // Trains Table
         String[] columnNames = {"#", "Train No", "Available Seats", "Train Status", "Select"};
@@ -120,13 +124,32 @@ public class UserDashboard extends JFrame {
         // Book Ticket Button (initially disabled)
         bookTicketButton = new JButton("Book Ticket");
         bookTicketButton.setEnabled(false);
+        bookTicketButton.addActionListener(e -> showBookTicketPanel());
 
         // Add listener to enable/disable book ticket button based on train selection
+//        trainsTable.getModel().addTableModelListener(e -> {
+//            boolean anySelected = false;
+//            for (int i = 0; i < trainsTable.getRowCount(); i++) {
+//                if ((Boolean) trainsTable.getValueAt(i, 4)) {
+//                    anySelected = true;
+//                    break;
+//                }
+//            }
+//            bookTicketButton.setEnabled(anySelected);
+//        });
         trainsTable.getModel().addTableModelListener(e -> {
             boolean anySelected = false;
+            Train selectedTrain = null;
             for (int i = 0; i < trainsTable.getRowCount(); i++) {
                 if ((Boolean) trainsTable.getValueAt(i, 4)) {
                     anySelected = true;
+                    // Find the selected train
+                    try (Connection conn = DatabaseUtil.getConnection()) {
+                        TrainDAO trainDAO = new TrainDAO(conn);
+                        selectedTrain = trainDAO.getTrainByNumber((String) trainsTable.getValueAt(i, 1));
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                     break;
                 }
             }
@@ -135,17 +158,60 @@ public class UserDashboard extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(trainsTable);
 
-        panel.add(searchPanel, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        searchPanel.add(searchInputPanel, BorderLayout.NORTH);
+        searchPanel.add(scrollPane, BorderLayout.CENTER);
 
         // Add book ticket button at bottom
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottomPanel.add(bookTicketButton);
-        panel.add(bottomPanel, BorderLayout.SOUTH);
+        searchPanel.add(bottomPanel, BorderLayout.SOUTH);
 
-        return panel;
+        // Add panels to card layout
+        bookTicketsPanel.add(searchPanel, "SearchPanel");
+
+        return bookTicketsPanel;
     }
 
+    private void showBookTicketPanel() {
+        // Find the selected train
+        Train selectedTrain = null;
+        for (int i = 0; i < trainsTable.getRowCount(); i++) {
+            if ((Boolean) trainsTable.getValueAt(i, 4)) {
+                try (Connection conn = DatabaseUtil.getConnection()) {
+                    TrainDAO trainDAO = new TrainDAO(conn);
+                    selectedTrain = trainDAO.getTrainByNumber((String) trainsTable.getValueAt(i, 1));
+                    break;
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    return;
+                }
+            }
+        }
+
+        if (selectedTrain != null) {
+            // Create BookTicketPanel
+            BookTicketPanel bookTicketPanel = new BookTicketPanel(selectedTrain, currentUser) {
+                @Override
+                public void bookingCompleted() {
+                    // Reset to search panel after successful booking
+                    bookTicketsCardLayout.show(bookTicketsPanel, "SearchPanel");
+                    searchTrains(); // Refresh train list
+                }
+            };
+
+            // Add book ticket panel to card layout if not already added
+            if (bookTicketsPanel.getComponentCount() == 1) {
+                bookTicketsPanel.add(bookTicketPanel, "BookTicketPanel");
+            } else {
+                // Replace existing book ticket panel
+                bookTicketsPanel.remove(1);
+                bookTicketsPanel.add(bookTicketPanel, "BookTicketPanel");
+            }
+
+            // Switch to book ticket panel
+            bookTicketsCardLayout.show(bookTicketsPanel, "BookTicketPanel");
+        }
+    }
     private void searchTrains() {
         // Clear previous results
         DefaultTableModel model = (DefaultTableModel) trainsTable.getModel();

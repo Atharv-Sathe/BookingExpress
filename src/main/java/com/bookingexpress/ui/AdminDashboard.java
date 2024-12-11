@@ -19,6 +19,7 @@ public class AdminDashboard extends JFrame {
     private JTextField bogeysField;
     private JTextField maxCapacityField;
     private JTextField availableSeatsField;
+    private JTextField costPerSeatField;
     private JComboBox<String> routeDropdown;
     private JComboBox<String> statusDropdown;
     private JButton searchButton;
@@ -74,7 +75,7 @@ public class AdminDashboard extends JFrame {
     }
 
     private JPanel createTrainDetailsForm() {
-        JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+        JPanel formPanel = new JPanel(new GridLayout(7, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createTitledBorder("Train Details"));
 
         // Train Number
@@ -100,6 +101,12 @@ public class AdminDashboard extends JFrame {
         availableSeatsField.setEditable(false);
         formPanel.add(new JLabel("Available Seats:"));
         formPanel.add(availableSeatsField);
+
+        // Cost Per Seat
+        costPerSeatField = new JTextField();
+        costPerSeatField.setEditable(false);
+        formPanel.add(new JLabel("Cost Per Seat:"));
+        formPanel.add(costPerSeatField);
 
         // Route Dropdown
         Map<String, String[]> routes = RouteManager.getAllRoutes();
@@ -171,6 +178,7 @@ public class AdminDashboard extends JFrame {
         bogeysField.setText(String.valueOf(train.getBogeys()));
         maxCapacityField.setText(String.valueOf(train.getMaxCapacity()));
         availableSeatsField.setText(String.valueOf(train.getAvailableSeats()));
+        costPerSeatField.setText(String.valueOf(train.getCostPerSeat()));
         routeDropdown.setSelectedItem(train.getRoute());
         statusDropdown.setSelectedItem(train.getTrainStatus());
     }
@@ -188,6 +196,7 @@ public class AdminDashboard extends JFrame {
                 bogeysField.setEditable(true);
                 maxCapacityField.setEditable(true);
                 availableSeatsField.setEditable(true);
+                costPerSeatField.setEditable(true);
                 routeDropdown.setEnabled(true);
                 statusDropdown.setEnabled(true);
 
@@ -205,6 +214,7 @@ public class AdminDashboard extends JFrame {
                     int bogeys = Integer.parseInt(bogeysField.getText().trim());
                     int maxCapacity = Integer.parseInt(maxCapacityField.getText().trim());
                     int availableSeats = Integer.parseInt(availableSeatsField.getText().trim());
+                    int costPerSeat = Integer.parseInt(costPerSeatField.getText().trim());
 
                     // Validate train number is not empty
                     if (trainNo.isEmpty()) {
@@ -230,6 +240,7 @@ public class AdminDashboard extends JFrame {
                     newTrain.setBogeys(bogeys);
                     newTrain.setMaxCapacity(maxCapacity);
                     newTrain.setAvailableSeats(availableSeats);
+                    newTrain.setCostPerSeat(costPerSeat);
                     newTrain.setRoute((String) routeDropdown.getSelectedItem());
                     newTrain.setTrainStatus((String) statusDropdown.getSelectedItem());
 
@@ -271,6 +282,7 @@ public class AdminDashboard extends JFrame {
                 bogeysField.setEditable(true);
                 maxCapacityField.setEditable(true);
                 availableSeatsField.setEditable(true);
+                costPerSeatField.setEditable(true);
                 routeDropdown.setEnabled(true);
                 statusDropdown.setEnabled(true);
 
@@ -282,6 +294,7 @@ public class AdminDashboard extends JFrame {
                     int bogeys = Integer.parseInt(bogeysField.getText().trim());
                     int maxCapacity = Integer.parseInt(maxCapacityField.getText().trim());
                     int availableSeats = Integer.parseInt(availableSeatsField.getText().trim());
+                    int costPerSeat = Integer.parseInt(costPerSeatField.getText().trim());
 
                     // Check available seats constraint
                     if (availableSeats > maxCapacity) {
@@ -298,6 +311,8 @@ public class AdminDashboard extends JFrame {
                     updatedTrain.setBogeys(bogeys);
                     updatedTrain.setMaxCapacity(maxCapacity);
                     updatedTrain.setAvailableSeats(availableSeats);
+                    updatedTrain.setCostPerSeat(costPerSeat);
+                    System.out.println("Cost Per Seat updated to : " + updatedTrain.getCostPerSeat());
                     updatedTrain.setRoute((String) routeDropdown.getSelectedItem());
                     updatedTrain.setTrainStatus((String) statusDropdown.getSelectedItem());
 
@@ -368,6 +383,7 @@ public class AdminDashboard extends JFrame {
         bogeysField.setEditable(false);
         maxCapacityField.setEditable(false);
         availableSeatsField.setEditable(false);
+        costPerSeatField.setEditable(false);
         routeDropdown.setEnabled(false);
         statusDropdown.setEnabled(false);
         editButton.setText("Edit");
@@ -378,6 +394,7 @@ public class AdminDashboard extends JFrame {
         bogeysField.setText("");
         maxCapacityField.setText("");
         availableSeatsField.setText("");
+        costPerSeatField.setText("");
         routeDropdown.setSelectedIndex(0);
         statusDropdown.setSelectedIndex(0);
     }
