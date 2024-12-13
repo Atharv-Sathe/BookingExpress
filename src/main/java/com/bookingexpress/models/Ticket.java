@@ -11,6 +11,7 @@ public class Ticket {
     private String passenger2;
     private String passenger3;
     private String passenger4;
+    private String dateOfDeparture;
 
     // Default constructor
     public Ticket() {}
@@ -103,6 +104,14 @@ public class Ticket {
 
     public void setPassenger4(String passenger4) {
         this.passenger4 = passenger4;
+    }
+
+    public String getDateOfDeparture() {
+        return dateOfDeparture;
+    }
+
+    public void setDateOfDeparture(String dateOfDeparture) {
+        this.dateOfDeparture = dateOfDeparture;
     }
 
     @Override

@@ -1,15 +1,23 @@
 package com.bookingexpress.ui;
 
+import com.bookingexpress.dao.TicketDAO;
 import com.bookingexpress.dao.TrainDAO;
+import com.bookingexpress.dao.TransactionDAO;
+import com.bookingexpress.models.Ticket;
 import com.bookingexpress.models.Train;
+import com.bookingexpress.models.Transaction;
 import com.bookingexpress.models.User;
 import com.bookingexpress.utils.DatabaseUtil;
 import com.bookingexpress.utils.RouteManager;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.Connection;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,6 +35,8 @@ public class UserDashboard extends JFrame {
     private JXDatePicker datePicker;
     private JPanel bookTicketsPanel;
     private CardLayout bookTicketsCardLayout;
+    private DefaultTableModel ticketModel;
+    private DefaultTableModel transactionModel;
 
     public UserDashboard(User user) {
         this.currentUser = user;
@@ -52,6 +62,20 @@ public class UserDashboard extends JFrame {
         // Transactions Tab
         JPanel transactionsPanel = createTransactionsPanel();
         tabbedPane.addTab("Transactions", transactionsPanel);
+
+        tabbedPane.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JTabbedPane tabbedPane = (JTabbedPane) e.getSource();
+                if (tabbedPane.getSelectedComponent() == yourTicketsPanel) {
+                    populateTicketsPanel(ticketModel);
+                }
+                if (tabbedPane.getSelectedComponent() == transactionsPanel) {
+                    populateTransactionsPanel(transactionModel);
+                }
+            }
+        });
+
 
         // Add logout button
         JButton logoutButton = new JButton("Logout");
@@ -177,9 +201,13 @@ public class UserDashboard extends JFrame {
             }
         }
 
+        Date selectedDate = datePicker.getDate();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String dateOfDeparture = dateFormat.format(selectedDate);
+
         if (selectedTrain != null) {
             // Create BookTicketPanel
-            BookTicketPanel bookTicketPanel = new BookTicketPanel(selectedTrain, currentUser) {
+            BookTicketPanel bookTicketPanel = new BookTicketPanel(selectedTrain, currentUser, dateOfDeparture) {
                 @Override
                 public void bookingCompleted() {
                     // Reset to search panel after successful booking
@@ -257,8 +285,11 @@ public class UserDashboard extends JFrame {
     private JPanel createYourTicketsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        // Tickets Table
-        JTable ticketsTable = new JTable();
+        // Tickets Table Columns
+        String[] ticketColumnNames = {"S.No", "PNR", "Train No", "Passenger 1", "Passenger 2", "Passenger 3", "Passenger 4", "Date of Departure"};
+        ticketModel = new DefaultTableModel(ticketColumnNames, 0);
+
+        JTable ticketsTable = new JTable(ticketModel);
         JScrollPane scrollPane = new JScrollPane(ticketsTable);
 
         panel.add(scrollPane, BorderLayout.CENTER);
@@ -266,16 +297,72 @@ public class UserDashboard extends JFrame {
         return panel;
     }
 
+    private void populateTicketsPanel(DefaultTableModel ticketModel) {
+        ticketModel.setRowCount(0);
+        // Fetch and populate tickets
+        try (Connection conn = DatabaseUtil.getConnection()) {
+            // Assuming you have a TicketDAO method to fetch tickets by username
+            TicketDAO ticketDAO = new TicketDAO(conn);
+            List<Ticket> userTickets = ticketDAO.getTicketByUsername(currentUser.getUsername());
+            System.out.println(userTickets);
+
+            for (int i = 0; i < userTickets.size(); i++) {
+                Ticket ticket = userTickets.get(i);
+                ticketModel.addRow(new Object[]{
+                        i + 1,
+                        ticket.getPnr(),
+                        ticket.getTrainNo(),
+                        ticket.getPassenger1(),
+                        ticket.getPassenger2(),
+                        ticket.getPassenger3(),
+                        ticket.getPassenger4(),
+                        ticket.getDateOfDeparture()
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error fetching tickets: " + e.getMessage());
+        }
+    }
+
+
     private JPanel createTransactionsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        // Transactions Table
-        JTable transactionsTable = new JTable();
+        // Transactions Table Columns
+        String[] transactionColumnNames = {"S.No", "Transaction ID", "PNR", "Amount", "Date and Time"};
+        transactionModel = new DefaultTableModel(transactionColumnNames, 0);
+
+        JTable transactionsTable = new JTable(transactionModel);
         JScrollPane scrollPane = new JScrollPane(transactionsTable);
 
         panel.add(scrollPane, BorderLayout.CENTER);
 
         return panel;
+    }
+
+    private void populateTransactionsPanel(DefaultTableModel transactionModel) {
+        transactionModel.setRowCount(0);
+        // Fetch and populate transactions
+        try (Connection conn = DatabaseUtil.getConnection()) {
+            // Assuming you have a TransactionDAO method to fetch transactions by username
+            TransactionDAO transactionDAO = new TransactionDAO(conn);
+            List<Transaction> userTransactions = transactionDAO.getTransactionByUsername(currentUser.getUsername());
+            System.out.println(userTransactions);
+            for (int i = 0; i < userTransactions.size(); i++) {
+                Transaction transaction = userTransactions.get(i);
+                transactionModel.addRow(new Object[]{
+                        i + 1,
+                        transaction.getTransactionId(),
+                        transaction.getPnr(),
+                        transaction.getAmount(),
+                        transaction.getDateTime()
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error fetching transactions: " + e.getMessage());
+        }
     }
 
     private void logout() {

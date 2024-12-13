@@ -14,7 +14,7 @@ public class TicketDAO {
 
     // Book a new ticket
     public boolean bookTicket(Ticket ticket) {
-        String query = "INSERT INTO Tickets (pnr, username, trainNo, ticket_status, userMobile, passenger1, passenger2, passenger3, passenger4) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO Tickets (pnr, username, trainNo, ticket_status, userMobile, passenger1, passenger2, passenger3, passenger4, dateOfDeparture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setString(1, ticket.getPnr());
             pstmt.setString(2, ticket.getUsername());
@@ -25,6 +25,7 @@ public class TicketDAO {
             pstmt.setString(7, ticket.getPassenger2());
             pstmt.setString(8, ticket.getPassenger3());
             pstmt.setString(9, ticket.getPassenger4());
+            pstmt.setString(10, ticket.getDateOfDeparture());
 
 
             return pstmt.executeUpdate() > 0;
@@ -52,6 +53,7 @@ public class TicketDAO {
                     ticket.setPassenger2(rs.getString("passenger2"));
                     ticket.setPassenger3(rs.getString("passenger3"));
                     ticket.setPassenger4(rs.getString("passenger4"));
+                    ticket.setDateOfDeparture(rs.getString("dateOfDeparture"));
                     return ticket;
                 }
             }
@@ -69,6 +71,7 @@ public class TicketDAO {
             pstmt.setString(1, username);
 
             try (ResultSet rs = pstmt.executeQuery()) {
+                System.out.println("Getting ticket by username: " + username);
                 while (rs.next()) {
                     Ticket ticket = new Ticket();
                     ticket.setPnr(rs.getString("pnr"));
@@ -80,6 +83,7 @@ public class TicketDAO {
                     ticket.setPassenger2(rs.getString("passenger2"));
                     ticket.setPassenger3(rs.getString("passenger3"));
                     ticket.setPassenger4(rs.getString("passenger4"));
+                    ticket.setDateOfDeparture(rs.getString("dateOfDeparture"));
                     tickets.add(ticket);
                 }
             }

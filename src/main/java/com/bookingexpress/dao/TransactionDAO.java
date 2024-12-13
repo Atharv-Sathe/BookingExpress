@@ -61,6 +61,7 @@ public class TransactionDAO {
             pstmt.setString(1, username);
 
             try (ResultSet rs = pstmt.executeQuery()) {
+                System.out.println("Getting trasactions by username: " + username);
                 while (rs.next()) {
                     Transaction transaction = new Transaction();
                     transaction.setTransactionId(rs.getString("transactionId"));

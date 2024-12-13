@@ -2,8 +2,10 @@ package com.bookingexpress.ui;
 
 import com.bookingexpress.dao.TicketDAO;
 import com.bookingexpress.dao.TrainDAO;
+import com.bookingexpress.dao.TransactionDAO;
 import com.bookingexpress.models.Ticket;
 import com.bookingexpress.models.Train;
+import com.bookingexpress.models.Transaction;
 import com.bookingexpress.models.User;
 import com.bookingexpress.utils.DatabaseUtil;
 
@@ -11,6 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -18,6 +21,7 @@ import java.util.Random;
 public abstract class BookTicketPanel extends JPanel {
     private Train selectedTrain;
     private User currentUser;
+    private String dateOfDeparture;
 //    private TrainDAO trainDAO;
 //    private TicketDAO ticketDAO;
 
@@ -37,18 +41,10 @@ public abstract class BookTicketPanel extends JPanel {
     private JTextField expiryField;
     private JButton confirmPaymentButton;
 
-    public BookTicketPanel(Train train, User user) {
+    public BookTicketPanel(Train train, User user, String dateOfDeparture) {
         this.selectedTrain = train;
         this.currentUser = user;
-
-        // Initialize DAOs
-//        try (Connection conn = DatabaseUtil.getConnection()) {
-//            this.trainDAO = new TrainDAO(conn);
-//            this.ticketDAO = new TicketDAO(conn);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            JOptionPane.showMessageDialog(this, "Database Connection Error");
-//        }
+        this.dateOfDeparture = dateOfDeparture;
 
         setLayout(new BorderLayout());
 
@@ -169,6 +165,12 @@ public abstract class BookTicketPanel extends JPanel {
         totalAmountLabel.setText(String.format("₹%.2f", totalAmount));
     }
 
+    private double getTotalAmount() {
+        int passengerCount = passengerForms.size();
+        double totalAmount = passengerCount * selectedTrain.getCostPerSeat();
+        return totalAmount;
+    }
+
     private void confirmTicketAndPay() {
         // Validate inputs
         if (!validateInputs()) {
@@ -215,9 +217,20 @@ public abstract class BookTicketPanel extends JPanel {
             ticket.setPassenger3(passengerDetails.get(2));
             ticket.setPassenger4(passengerDetails.get(3));
 
+            ticket.setDateOfDeparture(dateOfDeparture);
+
             // Save ticket
             TicketDAO ticketDAO = new TicketDAO(conn);
             boolean ticketSaved = ticketDAO.bookTicket(ticket);
+
+            TransactionDAO transactionDAO = new TransactionDAO(conn);
+            Transaction transaction = new Transaction();
+            transaction.setAmount(getTotalAmount());
+            transaction.setTransactionId(generateUniqueTransactionID());
+            transaction.setPnr(pnr);
+            transaction.setUsername(currentUser.getUsername());
+            transaction.setDateTime(LocalDateTime.now());
+            transactionDAO.addTransaction(transaction);
 
             if (ticketSaved) {
                 // Update train available seats
@@ -282,6 +295,11 @@ public abstract class BookTicketPanel extends JPanel {
     }
 
     private String generateUniquePNR() {
+        Random random = new Random();
+        return String.format("%06d", random.nextInt(1000000));
+    }
+
+    private String generateUniqueTransactionID() {
         Random random = new Random();
         return String.format("%06d", random.nextInt(1000000));
     }
