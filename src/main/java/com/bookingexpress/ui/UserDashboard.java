@@ -126,17 +126,6 @@ public class UserDashboard extends JFrame {
         bookTicketButton.setEnabled(false);
         bookTicketButton.addActionListener(e -> showBookTicketPanel());
 
-        // Add listener to enable/disable book ticket button based on train selection
-//        trainsTable.getModel().addTableModelListener(e -> {
-//            boolean anySelected = false;
-//            for (int i = 0; i < trainsTable.getRowCount(); i++) {
-//                if ((Boolean) trainsTable.getValueAt(i, 4)) {
-//                    anySelected = true;
-//                    break;
-//                }
-//            }
-//            bookTicketButton.setEnabled(anySelected);
-//        });
         trainsTable.getModel().addTableModelListener(e -> {
             boolean anySelected = false;
             Train selectedTrain = null;
