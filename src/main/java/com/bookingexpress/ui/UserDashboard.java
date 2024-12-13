@@ -282,17 +282,127 @@ public class UserDashboard extends JFrame {
         }
     }
 
+//    private JPanel createYourTicketsPanel() {
+//        JPanel panel = new JPanel(new BorderLayout());
+//
+//        // Tickets Table Columns
+//        String[] ticketColumnNames = {"S.No", "PNR", "Train No", "Passenger 1", "Passenger 2", "Passenger 3", "Passenger 4", "Date of Departure"};
+//        ticketModel = new DefaultTableModel(ticketColumnNames, 0);
+//
+//        JTable ticketsTable = new JTable(ticketModel);
+//        JScrollPane scrollPane = new JScrollPane(ticketsTable);
+//
+//        panel.add(scrollPane, BorderLayout.CENTER);
+//
+//        return panel;
+//    }
+
     private JPanel createYourTicketsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
         // Tickets Table Columns
-        String[] ticketColumnNames = {"S.No", "PNR", "Train No", "Passenger 1", "Passenger 2", "Passenger 3", "Passenger 4", "Date of Departure"};
-        ticketModel = new DefaultTableModel(ticketColumnNames, 0);
+        String[] ticketColumnNames = {"S.No", "PNR", "Train No", "Passenger 1", "Passenger 2", "Passenger 3", "Passenger 4", "Date of Departure", "Select"};
+        ticketModel = new DefaultTableModel(ticketColumnNames, 0) {
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                if (columnIndex == 8) return Boolean.class;
+                return super.getColumnClass(columnIndex);
+            }
 
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 8;
+            }
+        };
+
+        populateTicketsPanel(ticketModel);
         JTable ticketsTable = new JTable(ticketModel);
+
+        // Adjust column widths
+        ticketsTable.getColumnModel().getColumn(8).setMaxWidth(70);
+
         JScrollPane scrollPane = new JScrollPane(ticketsTable);
 
+        // Cancel Tickets Button
+        JButton cancelTicketButton = new JButton("Cancel Selected Tickets");
+        cancelTicketButton.setEnabled(false);
+
+        // Add listener to enable/disable cancel button based on checkbox selection
+        ticketsTable.getModel().addTableModelListener(e -> {
+            boolean anySelected = false;
+            for (int i = 0; i < ticketsTable.getRowCount(); i++) {
+                if ((Boolean) (ticketsTable.getValueAt(i, 8) != null)) {
+                    anySelected = true;
+                    break;
+                }
+            }
+            cancelTicketButton.setEnabled(anySelected);
+        });
+
+        // Cancel Ticket Button Action
+        cancelTicketButton.addActionListener(e -> {
+            int confirmCancel = JOptionPane.showConfirmDialog(
+                    this,
+                    "Are you sure you want to cancel the selected tickets?",
+                    "Confirm Ticket Cancellation",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirmCancel == JOptionPane.YES_OPTION) {
+                try (Connection conn = DatabaseUtil.getConnection()) {
+                    TicketDAO ticketDAO = new TicketDAO(conn);
+                    TrainDAO trainDAO = new TrainDAO(conn);
+                    TransactionDAO transactionDAO = new TransactionDAO(conn);
+
+                    // Start transaction
+                    conn.setAutoCommit(false);
+
+                    for (int i = 0; i < ticketsTable.getRowCount(); i++) {
+                        if ((Boolean) (ticketsTable.getValueAt(i, 8) != null)) {
+                            String pnr = (String) ticketsTable.getValueAt(i, 1);
+                            String trainNo = (String) ticketsTable.getValueAt(i, 2);
+
+                            // Delete associated transaction
+                            transactionDAO.deleteTransactionByPNR(pnr);
+
+                            // Delete ticket
+                            ticketDAO.cancelTicket(pnr);
+
+                            // Update train available seats
+                            trainDAO.incrementAvailableSeats(trainNo);
+                        }
+                    }
+
+                    // Commit transaction
+                    conn.commit();
+
+                    // Refresh tickets panel
+                    populateTicketsPanel(ticketModel);
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Selected tickets have been cancelled successfully.",
+                            "Ticket Cancellation",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Error cancelling tickets: " + ex.getMessage(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
+        });
+
+        // Bottom panel for cancel button
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        bottomPanel.add(cancelTicketButton);
+
         panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
 
         return panel;
     }

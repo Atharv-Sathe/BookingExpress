@@ -113,4 +113,17 @@ public class TrainDAO {
         }
         return trains;
     }
+
+
+    public boolean incrementAvailableSeats(String trainNo) {
+        String query = "UPDATE Trains SET available_seats = available_seats + 1 WHERE trainNo = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, trainNo);
+            return pstmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

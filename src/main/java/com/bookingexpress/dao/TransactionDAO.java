@@ -78,6 +78,7 @@ public class TransactionDAO {
         return transactions;
     }
 
+
     // Get transactions by PNR
     public List<Transaction> getTransactionsByPNR(String pnr) {
         List<Transaction> transactions = new ArrayList<>();
@@ -100,5 +101,16 @@ public class TransactionDAO {
             e.printStackTrace();
         }
         return transactions;
+    }
+
+    public boolean deleteTransactionByPNR(String pnr) {
+        String query = "DELETE FROM Transactions WHERE pnr = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, pnr);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
