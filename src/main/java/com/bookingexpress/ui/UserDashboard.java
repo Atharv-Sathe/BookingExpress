@@ -356,11 +356,12 @@ public class UserDashboard extends JFrame {
 
                     // Start transaction
                     conn.setAutoCommit(false);
-
                     for (int i = 0; i < ticketsTable.getRowCount(); i++) {
                         if ((Boolean) (ticketsTable.getValueAt(i, 8) != null)) {
                             String pnr = (String) ticketsTable.getValueAt(i, 1);
                             String trainNo = (String) ticketsTable.getValueAt(i, 2);
+                            int seats = ticketDAO.getPassengerCount(pnr);
+                            System.out.println("Number of seats: " + seats);
 
                             // Delete associated transaction
                             transactionDAO.deleteTransactionByPNR(pnr);
@@ -369,7 +370,7 @@ public class UserDashboard extends JFrame {
                             ticketDAO.cancelTicket(pnr);
 
                             // Update train available seats
-                            trainDAO.incrementAvailableSeats(trainNo);
+                            trainDAO.incrementAvailableSeats(trainNo, seats);
                         }
                     }
 

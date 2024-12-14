@@ -4,6 +4,7 @@ import com.bookingexpress.models.Train;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import com.bookingexpress.dao.TicketDAO;
 
 public class TrainDAO {
     private Connection connection;
@@ -115,10 +116,12 @@ public class TrainDAO {
     }
 
 
-    public boolean incrementAvailableSeats(String trainNo) {
-        String query = "UPDATE Trains SET available_seats = available_seats + 1 WHERE trainNo = ?";
+
+    public boolean incrementAvailableSeats(String trainNo, int seats) {
+        String query = "UPDATE Trains SET available_seats = available_seats + ? WHERE trainNo = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setString(1, trainNo);
+            pstmt.setInt(1, seats);
+            pstmt.setString(2, trainNo);
             return pstmt.executeUpdate() > 0;
 
         } catch (SQLException e) {

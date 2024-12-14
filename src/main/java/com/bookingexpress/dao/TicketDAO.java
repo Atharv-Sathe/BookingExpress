@@ -106,7 +106,31 @@ public class TicketDAO {
             return false;
         }
     }
+    // To get the passenger count
+    public int getPassengerCount(String pnr) {
+        int count = 0;
+        String query = "SELECT passenger1, passenger2, passenger3, passenger4 FROM Tickets WHERE pnr = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, pnr);
 
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    System.out.println(rs.getString("passenger1"));
+                    if (!rs.getString("passenger1").isEmpty()) count++;
+                    System.out.println(rs.getString("passenger2"));
+                    if (!rs.getString("passenger2").isEmpty()) count++;
+                    System.out.println(rs.getString("passenger3"));
+                    if (!rs.getString("passenger3").isEmpty()) count++;
+                    System.out.println(rs.getString("passenger4"));
+                    if (!rs.getString("passenger4").isEmpty()) count++;
+                }
+            }
+            return count;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
     // Cancel ticket
     public boolean cancelTicket(String pnr) {
         String query = "DELETE FROM Tickets WHERE pnr = ?";
