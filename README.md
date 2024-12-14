@@ -2,8 +2,6 @@
 
 **Booking Express** is a desktop application built with Java Swing for managing railway bookings. It provides features for both users and admins to handle train tickets and transactions efficiently. The application ensures role-based access and offers a modular, maintainable structure.
 
----
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -12,8 +10,6 @@
 - [Database Schemas](#database-schemas)
 - [Installation](#installation)
 
----
-
 ## Overview
 
 Booking Express facilitates:
@@ -21,8 +17,6 @@ Booking Express facilitates:
 - **Admins:** Managing trains and users, including adding, removing, and editing details.
 
 **GitHub Repository:** [Booking Express](https://github.com/Atharv-Sathe/BookingExpress)
-
----
 
 ## Features
 
@@ -40,8 +34,6 @@ Booking Express facilitates:
 ### Additional:
 - **Role-based Access Control:** Separate dashboards for users and admins.
 - **Real-Time Updates:** Automatically update seat availability and transaction logs.
-
----
 
 ## Directory Structure
 
@@ -69,8 +61,6 @@ src/
     └── Main.java      # Application Entry Point
 
 ```
----
-
 ## Database Schemas
 
 ### 1. Users
@@ -113,7 +103,7 @@ src/
 | date_time       | TIMESTAMP   | Date and time of transaction    |
 | amount          | DECIMAL(10) | Transaction amount              |
 
----
+
 ## Installation
 
 1. Clone the repository:
@@ -130,7 +120,7 @@ src/
    ```
 4. Run the application
    - Execute `Main.java` from your IDE.
----
+
 ## Contact
 
 - Email me at: [@AthSat](mailto:atharvsathe28704@gmail.com)!
